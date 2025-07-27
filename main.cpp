@@ -36,6 +36,12 @@ void interactive() {
 		size_t argc;
 		char** argv = tokenize_input(input, &argc);
 
+		if (argc == 0 || argv[0] == NULL) {
+			free(input);
+			free(argv);
+			continue;
+		}
+
 		pid_t pid = fork();
 
 		if (pid == 0) {
@@ -48,6 +54,11 @@ void interactive() {
 			waitpid(pid, &status, 0);
 		}
 
+		for (size_t i = 0; i < argc; i++) {
+			free(argv[i]);
+		}
+
+		free(argv);
 		free(input);
 	}
 }

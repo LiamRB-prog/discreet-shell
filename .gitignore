@@ -1,0 +1,29 @@
+# Object files
+*.o
+
+# Compiled binaries (no file extension)
+a.out
+main
+program
+build/
+bin/
+dist/
+*.exe    # if you’re on Windows
+*.out    # common gcc default output
+
+# CMake build folders
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# Debug symbol files
+*.dSYM/
+*.pdb
+*.obj
+
+# Temp files
+*.log
+*.tmp
+*.swp
+

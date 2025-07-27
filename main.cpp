@@ -1,43 +1,73 @@
 #include <stdio.h>
 #include <cstdlib>
 #include <unistd.h>
+#include <string.h>
 #include <sys/types.h>
+#include <sys/wait.h>
+
+#define ARG_SIZE 1024
+#define ARG_NUM 64
+
+void interactive();
+char** tokenize_input(char* line, size_t* count);
 
 int main(int argc, char** argv) {
-	int fd[2]; // fd[0] is input, fd[1] is output
-	pid_t childProcess;
-
-	pipe(fd);
-
-	childProcess = fork();
-
-	if (childProcess == -1) {
-		perror("fork");
-		exit(1);
-	}
-
-	if (childProcess == 0) {
-		// This is the child process
-		
-
-		close(fd[0]);
-
-		int x;
-		scanf("%d", &x);
-		write(fd[1], &x, sizeof(int));
-		close(fd[1]);	
-	}
-	else {
-		// This is the parent process
-
-		close(fd[1]);
-
-		int y;		
-		read(fd[0], &y, sizeof(int));
-		close(fd[0]);
-
-		printf("%d\n", y);
+	if (argc < 2) {
+		interactive();
 	}
 
 	return 0;
+}
+
+void interactive() {
+	printf("Welcome to Disscreet Shell interactive mode!\n");
+
+	while(true) {
+		size_t size = ARG_SIZE;
+		char* input = NULL;
+
+		printf("dsh> ");
+
+		if (!getline(&input, &size, stdin)) {
+			printf("ERROR GETTING LINE");
+			exit(1);
+		}
+
+		size_t argc;
+		char** argv = tokenize_input(input, &argc);
+
+		pid_t pid = fork();
+
+		if (pid == 0) {
+			execvp(argv[0], argv);
+
+			exit(0);
+		}
+		else {
+			int status;
+			waitpid(pid, &status, 0);
+		}
+
+		free(input);
+	}
+}
+
+char** tokenize_input(char* line, size_t* count) {
+	size_t argc = 0;
+	char** argv = (char**)malloc(sizeof(char*) * ARG_NUM);
+
+	char* token = strtok(line, " \t");
+
+	while(token != NULL && argc < ARG_NUM) {
+		argv[argc++] = strdup(token);
+		token = strtok(NULL, " \t");
+	}
+
+	if (argv[argc-1][strlen(argv[argc-1])-1] == '\n') {
+		argv[argc-1][strlen(argv[argc-1])-1] = '\0';
+	}
+
+	argv[argc] = NULL;
+	*count = argc;
+	return argv;
 }

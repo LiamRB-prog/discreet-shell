@@ -7,6 +7,7 @@
 
 #define ARG_SIZE 1024
 #define ARG_NUM 64
+#define FILE_NAME "./main"
 
 void interactive();
 char** tokenize_input(char* line, size_t* count);
@@ -20,8 +21,6 @@ int main(int argc, char** argv) {
 }
 
 void interactive() {
-	printf("Welcome to Disscreet Shell interactive mode!\n");
-
 	while(true) {
 		size_t size = ARG_SIZE;
 		char* input = NULL;
@@ -29,7 +28,7 @@ void interactive() {
 		printf("dsh> ");
 
 		if (!getline(&input, &size, stdin)) {
-			printf("ERROR GETTING LINE");
+			perror("ERROR GETTING LINE");
 			exit(1);
 		}
 
@@ -42,16 +41,31 @@ void interactive() {
 			continue;
 		}
 
+		int fd[2];
+		
+		if (!pipe(fd)) {
+			perror("ERROR PIPING");
+			exit(1);
+		}
+
 		pid_t pid = fork();
 
 		if (pid == 0) {
-			execvp(argv[0], argv);
+			close(fd[0]);
+			dup2(0, fd[1]);
 
-			exit(0);
+			execvp(argv[0], argv);
 		}
 		else {
-			int status;
-			waitpid(pid, &status, 0);
+			close(fd[1]);
+
+			char* buffer = NULL;
+
+			while (getline(&buffer, &size, fdopen(fd[0], "r")) != 0) {
+				printf("%s\n", buffer);
+			}
+
+			free(buffer);
 		}
 
 		for (size_t i = 0; i < argc; i++) {

@@ -1,6 +1,7 @@
+#include <err.h>
 #include <stdio.h>
-#include <cstdlib>
 #include <unistd.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -10,7 +11,9 @@
 #define FILE_NAME "./main"
 
 void interactive();
-char** tokenize_input(char* line, size_t* count);
+char** tokenize_input(char*, size_t*);
+void read_from_pipe(int);
+void error_message(int, char*);
 
 int main(int argc, char** argv) {
 	if (argc < 2) {
@@ -27,9 +30,8 @@ void interactive() {
 
 		printf("dsh> ");
 
-		if (!getline(&input, &size, stdin)) {
-			perror("ERROR GETTING LINE");
-			exit(1);
+		if (getline(&input, &size, stdin) == -1) {
+			error_message(EXIT_FAILURE ,"ERROR GETTING LINE");
 		}
 
 		size_t argc;
@@ -43,9 +45,8 @@ void interactive() {
 
 		int fd[2];
 		
-		if (!pipe(fd)) {
-			perror("ERROR PIPING");
-			exit(1);
+		if (pipe(fd) == -1) {
+			error_message(EXIT_FAILURE, "ERROR PIPING");
 		}
 
 		pid_t pid = fork();
@@ -59,13 +60,7 @@ void interactive() {
 		else {
 			close(fd[1]);
 
-			char* buffer = NULL;
-
-			while (getline(&buffer, &size, fdopen(fd[0], "r")) != 0) {
-				printf("%s\n", buffer);
-			}
-
-			free(buffer);
+			read_from_pipe(fd[0]);
 		}
 
 		for (size_t i = 0; i < argc; i++) {
@@ -95,4 +90,27 @@ char** tokenize_input(char* line, size_t* count) {
 	argv[argc] = NULL;
 	*count = argc;
 	return argv;
+}
+
+void read_from_pipe(int fd) {
+	FILE* stream = fdopen(fd, "r");
+
+	if (!stream) {
+		error_message(EXIT_FAILURE, "ERROR OPENING STREAM");
+	}
+
+	char* buffer = NULL;
+	size_t size = 0;
+
+	while (getline(&buffer, &size, stream) != -1) {
+		printf("%s", buffer);
+	}
+
+	free(buffer);
+	fclose(stream);
+}
+
+void error_message(int code, char* message) {
+	err(code, message);
+	exit(code);
 }

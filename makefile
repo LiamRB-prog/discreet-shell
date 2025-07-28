@@ -1,10 +1,10 @@
 # Compiler and flags
-CXX := g++
-CXXFLAGS := -Wall -Werror -std=c++17
+CXX := gcc
+CXXFLAGS := -Wall -Werror
 
 # Source files and object files
-SRC := main.cpp
-OBJ := $(SRC:.cpp=.o)
+SRC := main.c
+OBJ := $(SRC:.c=.o)
 
 # Output binary name
 TARGET := main
@@ -17,7 +17,7 @@ $(TARGET): $(OBJ)
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
 # Compiling
-%.o: %.cpp
+%.o: %.c
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # Clean build artifacts

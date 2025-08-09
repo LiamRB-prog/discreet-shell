@@ -12,7 +12,7 @@
 
 void interactive();
 char** tokenize_input(char*, size_t*);
-void read_from_pipe(int);
+char* read_pipe_buf(int);
 void error_message(int, char*);
 
 int main(int argc, char** argv) {
@@ -32,6 +32,10 @@ void interactive() {
 
 		if (getline(&input, &size, stdin) == -1) {
 			error_message(EXIT_FAILURE ,"ERROR GETTING LINE");
+		}
+
+		if (input[strlen(input)-1] == '\n') {
+			input[strlen(input)-1] = '\0';
 		}
 
 		size_t argc;
@@ -60,7 +64,10 @@ void interactive() {
 		else {
 			close(fd[1]);
 
-			read_from_pipe(fd[0]);
+			read_pipe_buf(fd[0]);
+
+			int status = 1;
+			waitpid(pid, &status, 0);
 		}
 
 		for (size_t i = 0; i < argc; i++) {
@@ -83,16 +90,12 @@ char** tokenize_input(char* line, size_t* count) {
 		token = strtok(NULL, " \t");
 	}
 
-	if (argv[argc-1][strlen(argv[argc-1])-1] == '\n') {
-		argv[argc-1][strlen(argv[argc-1])-1] = '\0';
-	}
-
 	argv[argc] = NULL;
 	*count = argc;
 	return argv;
 }
 
-void read_from_pipe(int fd) {
+char* read_pipe_buf(int fd) {
 	FILE* stream = fdopen(fd, "r");
 
 	if (!stream) {
@@ -102,12 +105,11 @@ void read_from_pipe(int fd) {
 	char* buffer = NULL;
 	size_t size = 0;
 
-	while (getline(&buffer, &size, stream) != -1) {
-		printf("%s", buffer);
-	}
+	while (getline(&buffer, &size, stream) != -1);
 
-	free(buffer);
 	fclose(stream);
+
+	return buffer;
 }
 
 void error_message(int code, char* message) {

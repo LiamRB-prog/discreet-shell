@@ -10,20 +10,21 @@
 #define ARG_NUM 64
 #define FILE_NAME "./main"
 
-void interactive();
+void interactive(char*);
 char** tokenize_input(char*, size_t*);
 char* read_pipe_buf(int);
 void error_message(int, char*);
 
 int main(int argc, char** argv) {
 	if (argc < 2) {
-		interactive();
+    char* buf = NULL;
+		interactive(buf);
 	}
 
 	return 0;
 }
 
-void interactive() {
+void interactive(char* buf) {
 	while(true) {
 		size_t size = ARG_SIZE;
 		char* input = NULL;
@@ -46,6 +47,16 @@ void interactive() {
 			free(argv);
 			continue;
 		}
+    else if (strcmp(argv[0], "show") == 0) {
+      if (buf != NULL) {
+        printf("%s", buf);
+      }
+      else {
+        printf("Buffer is empty.\n");
+      }
+
+      continue;
+    }
 
 		int fd[2];
 		
@@ -57,14 +68,14 @@ void interactive() {
 
 		if (pid == 0) {
 			close(fd[0]);
-			dup2(0, fd[1]);
+			dup2(fd[1], STDOUT_FILENO);
 
 			execvp(argv[0], argv);
 		}
 		else {
 			close(fd[1]);
 
-			read_pipe_buf(fd[0]);
+			buf = read_pipe_buf(fd[0]);
 
 			int status = 1;
 			waitpid(pid, &status, 0);

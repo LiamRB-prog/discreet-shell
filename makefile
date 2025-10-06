@@ -1,6 +1,7 @@
 # Compiler and flags
-CXX := gcc
-CXXFLAGS := -Wall -Werror
+CC := gcc
+CFLAGS := -Wall -Werror
+DEBUG_FLAGS := -Wall -Werror -DDEBUG -g
 
 # Source files and object files
 SRC := main.c
@@ -8,22 +9,26 @@ OBJ := $(SRC:.c=.o)
 
 # Output binary name
 TARGET := main
+DEBUG_TARGET := main_debug
 
 # Default rule
 all: $(TARGET)
 
-# Linking
+# Linking (normal build)
 $(TARGET): $(OBJ)
-	$(CXX) $(CXXFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) -o $@ $^
 
-# Compiling
+# Compiling (normal build)
 %.o: %.c
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Debug build
+debug: clean
+	$(CC) $(DEBUG_FLAGS) -o $(DEBUG_TARGET) $(SRC)
 
 # Clean build artifacts
 clean:
-	rm -f $(OBJ) $(TARGET)
+	rm -f $(OBJ) $(TARGET) $(DEBUG_TARGET)
 
-# Optional: phony targets
-.PHONY: all clean
+.PHONY: all clean debug
 

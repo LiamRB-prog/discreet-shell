@@ -5,10 +5,12 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include "process_manager.h"
 
 #define ARG_SIZE 1024
 #define ARG_NUM 64
-#define FILE_NAME "./main"
+
+struct ProcessManager* pm = NULL;
 
 void interactive(char*);
 char** tokenize_input(char*, size_t*);
@@ -16,6 +18,8 @@ char* read_pipe_buf(int);
 void error_message(int, char*);
 
 int main(int argc, char** argv) {
+  pm = pm_init();
+
 	if (argc < 2) {
     char* buf = NULL;
 		interactive(buf);
@@ -64,13 +68,15 @@ void interactive(char* buf) {
 			error_message(EXIT_FAILURE, "ERROR PIPING");
 		}
 
+    pm_add_proc(pm, argv, argc);
+
 		pid_t pid = fork();
 
 		if (pid == 0) {
 			close(fd[0]);
 			dup2(fd[1], STDOUT_FILENO);
 
-			execvp(argv[0], argv);
+			
 		}
 		else {
 			close(fd[1]);

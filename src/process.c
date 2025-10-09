@@ -2,10 +2,11 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <error_message.h>
 #include <process.h>
 
 Process* create_proc(char** argv) {
-  Process* proc = (Process*)malloc(sizeof(Process));
+  Process* proc = malloc(sizeof(Process));
   
   if (!proc) return NULL;
 
@@ -14,8 +15,7 @@ Process* create_proc(char** argv) {
   int fd[2];
 
   if (pipe(fd) == -1) {
-    printf("ERROR PIPING");
-    return NULL;
+    error_message(EXIT_FAILURE, "ERROR PIPING");
   }
 
   pid_t pid = fork();
@@ -24,7 +24,7 @@ Process* create_proc(char** argv) {
     proc->pid = getpid();
 
     close(fd[0]);
-    dup2(fd[1], 1);
+    dup2(fd[1], STDOUT_FILENO);
 
     execvp(argv[0], argv);
     return proc;

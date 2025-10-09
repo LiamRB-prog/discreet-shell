@@ -4,9 +4,9 @@
 #include <process_manager.h>
 
 ProcessManager* pm_init() {
-  ProcessManager* pm = (ProcessManager*)malloc(sizeof(ProcessManager));
+  ProcessManager* pm = malloc(sizeof(ProcessManager));
 
-  for(int i = 0; i < sizeof(pm->processes)/sizeof(Process*); i++) {
+  for(int i = 0; i < MAX_PROCESSES; i++) {
     pm->processes[i] = NULL;
   }
 
@@ -17,7 +17,7 @@ void pm_add_proc(ProcessManager* pm, char** argv) {
   bool pmFull = true;
   int index = 0;
 
-  for(; index < sizeof(pm->processes)/sizeof(Process*); index++) {
+  for(; index < MAX_PROCESSES; index++) {
     if(pm->processes[index] == NULL) {
       pmFull = false;
       break;

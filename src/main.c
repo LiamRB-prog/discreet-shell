@@ -1,4 +1,3 @@
-#include <err.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -6,6 +5,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <config.h>
+#include <error_message.h>
 #include <process_manager.h>
 
 struct ProcessManager* pm = NULL;
@@ -60,31 +60,8 @@ void interactive(char* buf) {
 
       continue;
     }
-
-		int fd[2];
 		
-		if (pipe(fd) == -1) {
-			error_message(EXIT_FAILURE, "ERROR PIPING");
-		}
-
     pm_add_proc(pm, argv);
-
-		pid_t pid = fork();
-
-		if (pid == 0) {
-			close(fd[0]);
-			dup2(fd[1], STDOUT_FILENO);
-
-			
-		}
-		else {
-			close(fd[1]);
-
-			buf = read_pipe_buf(fd[0]);
-
-			int status = 1;
-			waitpid(pid, &status, 0);
-		}
 
 		for (size_t i = 0; i < argc; i++) {
 			free(argv[i]);
@@ -126,9 +103,4 @@ char* read_pipe_buf(int fd) {
 	fclose(stream);
 
 	return buffer;
-}
-
-void error_message(int code, char* message) {
-	err(code, message);
-	exit(code);
 }

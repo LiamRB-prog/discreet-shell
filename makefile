@@ -1,34 +1,34 @@
 # Compiler and flags
 CC := gcc
-CFLAGS := -Wall -Werror
-DEBUG_FLAGS := -Wall -Werror -DDEBUG -g
+CFLAGS := -Wall -Werror -Iinclude
 
-# Source files and object files
-SRC := main.c
-OBJ := $(SRC:.c=.o)
+# Source and object files
+SRC := $(wildcard src/*.c)
+OBJ := $(SRC:src/%.c=build/%.o)
 
-# Output binary name
-TARGET := main
-DEBUG_TARGET := main_debug
+# Output binary
+TARGET := bin/shell
 
-# Default rule
+# Default target
 all: $(TARGET)
 
-# Linking (normal build)
+# Linking step
 $(TARGET): $(OBJ)
+	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -o $@ $^
 
-# Compiling (normal build)
-%.o: %.c
+# Compilation step
+build/%.o: src/%.c
+	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Debug build
-debug: clean
-	$(CC) $(DEBUG_FLAGS) -o $(DEBUG_TARGET) $(SRC)
+# Debug build (adds -g)
+debug: CFLAGS += -g -DDEBUG
+debug: clean all
 
-# Clean build artifacts
+# Clean artifacts
 clean:
-	rm -f $(OBJ) $(TARGET) $(DEBUG_TARGET)
+	rm -rf build bin
 
 .PHONY: all clean debug
 

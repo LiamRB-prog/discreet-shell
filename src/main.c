@@ -74,7 +74,7 @@ void interactive(char* buf) {
 
 char** tokenize_input(char* line, size_t* count) {
 	size_t argc = 0;
-	char** argv = (char**)malloc(sizeof(char*) * ARG_NUM);
+	char** argv = malloc(sizeof(char*) * ARG_NUM);
 
 	char* token = strtok(line, " \t");
 

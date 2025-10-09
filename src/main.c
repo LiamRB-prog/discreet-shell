@@ -5,10 +5,8 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include "process_manager.h"
-
-#define ARG_SIZE 1024
-#define ARG_NUM 64
+#include <config.h>
+#include <process_manager.h>
 
 struct ProcessManager* pm = NULL;
 
@@ -24,7 +22,8 @@ int main(int argc, char** argv) {
     char* buf = NULL;
 		interactive(buf);
 	}
-
+  
+  pm_exit(pm);
 	return 0;
 }
 
@@ -68,7 +67,7 @@ void interactive(char* buf) {
 			error_message(EXIT_FAILURE, "ERROR PIPING");
 		}
 
-    pm_add_proc(pm, argv, argc);
+    pm_add_proc(pm, argv);
 
 		pid_t pid = fork();
 

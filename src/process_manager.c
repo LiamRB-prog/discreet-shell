@@ -1,8 +1,10 @@
-#include "process.h"
-#include "process_manager.h"
+#include <stdio.h>
+#include <config.h>
+#include <process.h>
+#include <process_manager.h>
 
 ProcessManager* pm_init() {
-  ProcessManager* pm;
+  ProcessManager* pm = (ProcessManager*)malloc(sizeof(ProcessManager));
 
   for(int i = 0; i < sizeof(pm->processes)/sizeof(Process*); i++) {
     pm->processes[i] = NULL;
@@ -27,6 +29,14 @@ void pm_add_proc(ProcessManager* pm, char** argv) {
     return;
   }
 
-  Process proc = create_proc(argv);
+  Process* proc = create_proc(argv);
   pm->processes[index] = proc;
+}
+
+void pm_exit(ProcessManager* pm) {
+  for(int i = 0; i < MAX_PROCESSES; i++) {
+    if (pm->processes[i] != NULL) free(pm->processes[i]);
+  }
+
+  free(pm);
 }

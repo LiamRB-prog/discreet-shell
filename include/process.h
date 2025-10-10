@@ -11,5 +11,6 @@ typedef struct Process {
 } Process;
 
 Process* create_proc(char** argv);
+char* read_pipe_buf(int fd);
 
 #endif

@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/wait.h>
+#include <string.h>
 #include <error_message.h>
 #include <process.h>
 
@@ -30,6 +32,31 @@ Process* create_proc(char** argv) {
     return proc;
   }
   else {
+    close(fd[1]);
+    char* buf = read_pipe_buf(fd[0]);
+
+    int status;
+
+    waitpid(proc->pid, &status, WNOHANG);
+    strcpy(buf, proc->buf);
+
     return proc;
   }
+}
+
+char* read_pipe_buf(int fd) {
+	FILE* stream = fdopen(fd, "r");
+
+	if (!stream) {
+		error_message(EXIT_FAILURE, "ERROR OPENING STREAM");
+	}
+
+	char* buffer = NULL;
+	size_t size = 0;
+
+	while (getline(&buffer, &size, stream) != -1);
+
+	fclose(stream);
+
+	return buffer;
 }

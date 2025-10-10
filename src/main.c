@@ -13,7 +13,6 @@ struct ProcessManager* pm = NULL;
 void interactive(char*);
 char** tokenize_input(char*, size_t*);
 char* read_pipe_buf(int);
-void error_message(int, char*);
 
 int main(int argc, char** argv) {
   pm = pm_init();
@@ -86,21 +85,4 @@ char** tokenize_input(char* line, size_t* count) {
 	argv[argc] = NULL;
 	*count = argc;
 	return argv;
-}
-
-char* read_pipe_buf(int fd) {
-	FILE* stream = fdopen(fd, "r");
-
-	if (!stream) {
-		error_message(EXIT_FAILURE, "ERROR OPENING STREAM");
-	}
-
-	char* buffer = NULL;
-	size_t size = 0;
-
-	while (getline(&buffer, &size, stream) != -1);
-
-	fclose(stream);
-
-	return buffer;
 }

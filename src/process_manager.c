@@ -35,8 +35,15 @@ void pm_add_proc(ProcessManager* pm, char** argv) {
 
 void pm_exit(ProcessManager* pm) {
   for(int i = 0; i < MAX_PROCESSES; i++) {
-    if (pm->processes[i] != NULL) free(pm->processes[i]);
+    if (pm->processes[i] != NULL) {
+      if (pm->processes[i]->buf != NULL) {
+        free(pm->processes[i]->buf);
+      }
+
+      free(pm->processes[i]);
+    }
   }
 
+  free(pm->processes);
   free(pm);
 }

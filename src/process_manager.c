@@ -1,7 +1,12 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <string.h>
 #include <config.h>
 #include <process.h>
 #include <process_manager.h>
+#include <error_message.h>
 
 ProcessManager* pm_init() {
   ProcessManager* pm = malloc(sizeof(ProcessManager));
@@ -31,6 +36,29 @@ void pm_add_proc(ProcessManager* pm, char** argv) {
 
   Process* proc = create_proc(argv);
   pm->processes[index] = proc;
+
+  if (pipe(proc->fd) == -1) {
+    error_message(EXIT_FAILURE, "ERROR PIPING");
+  }
+
+  pid_t pid = fork();
+
+  if (pid == 0) {
+    proc->pid = getpid();
+    close(proc->fd[0]);
+    dup2(proc->fd[1], STDOUT_FILENO);
+
+    run_proc(proc);
+  }
+  else {
+    close(proc->fd[1]);
+    char* buf = read_pipe_buf(proc->fd[0]);
+
+    int status;
+
+    waitpid(proc->pid, &status, WNOHANG);
+    strcpy(buf, proc->buf);
+  }
 }
 
 void pm_exit(ProcessManager* pm) {
@@ -46,4 +74,21 @@ void pm_exit(ProcessManager* pm) {
 
   free(pm->processes);
   free(pm);
+}
+
+char* read_pipe_buf(int fd) {
+	FILE* stream = fdopen(fd, "r");
+
+	if (!stream) {
+		error_message(EXIT_FAILURE, "ERROR OPENING STREAM");
+	}
+
+	char* buffer = NULL;
+	size_t size = 0;
+
+	while (getline(&buffer, &size, stream) != -1);
+
+	fclose(stream);
+
+	return buffer;
 }

@@ -8,9 +8,10 @@ typedef struct Process {
   pid_t pid;
   char* buf;
   char** command;
+  int fd[2];
 } Process;
 
 Process* create_proc(char** argv);
-char* read_pipe_buf(int fd);
+void run_proc(Process* proc);
 
 #endif

@@ -7,10 +7,11 @@
 #include <config.h>
 #include <error_message.h>
 #include <process_manager.h>
+#include <commands.h>
 
 struct ProcessManager* pm = NULL;
 
-void interactive(char*);
+void interactive();
 char** tokenize_input(char*, size_t*);
 char* read_pipe_buf(int);
 
@@ -18,15 +19,14 @@ int main(int argc, char** argv) {
   pm = pm_init();
 
 	if (argc < 2) {
-    char* buf = NULL;
-		interactive(buf);
+		interactive();
 	}
   
   pm_exit(pm);
 	return 0;
 }
 
-void interactive(char* buf) {
+void interactive() {
 	while(true) {
 		size_t size = ARG_SIZE;
 		char* input = NULL;
@@ -49,16 +49,10 @@ void interactive(char* buf) {
 			free(argv);
 			continue;
 		}
-    else if (strcmp(argv[0], "show") == 0) {
-      if (buf != NULL) {
-        printf("%s", buf);
-      }
-      else {
-        printf("Buffer is empty.\n");
-      }
 
-      continue;
-    }
+    bool skip = c_delegate_cmd(pm, argv);
+
+    if (skip) continue;
 		
     pm_add_proc(pm, argv);
 

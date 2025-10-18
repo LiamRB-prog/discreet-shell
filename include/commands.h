@@ -1,0 +1,9 @@
+#ifndef COMMANDS_H
+#define COMMANDS_H
+
+#include <process_manager.h>
+
+bool c_delegate_cmd(ProcessManager* pm, char** argv);
+void c_shout(ProcessManager* pm, char* argv);
+
+#endif

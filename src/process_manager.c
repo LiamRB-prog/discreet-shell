@@ -52,12 +52,11 @@ void pm_add_proc(ProcessManager* pm, char** argv) {
   }
   else {
     close(proc->fd[1]);
-    char* buf = read_pipe_buf(proc->fd[0]);
+    proc->buf = read_pipe_buf(proc->fd[0]);
 
     int status;
 
     waitpid(proc->pid, &status, WNOHANG);
-    strcpy(buf, proc->buf);
   }
 }
 

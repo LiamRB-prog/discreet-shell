@@ -60,6 +60,10 @@ void pm_add_proc(ProcessManager* pm, char** argv) {
   }
 }
 
+void pm_remove_proc(ProcessManager* pm, int index) {
+  // add functionality
+}
+
 void pm_exit(ProcessManager* pm) {
   for(int i = 0; i < MAX_PROCESSES; i++) {
     if (pm->processes[i] != NULL) {

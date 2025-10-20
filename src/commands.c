@@ -15,5 +15,17 @@ bool c_delegate_cmd(ProcessManager* pm, char** argv) {
 }
 
 void c_shout(ProcessManager* pm, char* argv) {
-  printf("%s\n", pm->processes[atoi(argv)]->buf);
+  if (pm->processes[strtol(argv)] == NULL) return;
+  if (pm->processes[strtol(argv)]->buf == NULL) return;
+
+  printf("%s\n", pm->processes[strtol(argv)]->buf);
+}
+
+void c_remove(ProcessManager* pm, char* argv) {
+  if (pm->processes[strtol(argv)] == NULL) return;
+  if (pm->processes[strtol(argv)]->buf == NULL) return;
+
+  // add functionality
+
+  printf("Removed Process")
 }

@@ -71,6 +71,7 @@ void pm_remove_proc(ProcessManager* pm, int index) {
     free(pm->processes[index]->command);
   }
 
+  free(pm->process[index]);
   pm->processes[index] = NULL;
 }
 

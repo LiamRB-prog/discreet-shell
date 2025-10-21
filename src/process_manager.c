@@ -61,7 +61,17 @@ void pm_add_proc(ProcessManager* pm, char** argv) {
 }
 
 void pm_remove_proc(ProcessManager* pm, int index) {
-  // add functionality
+  if (pm->processes[index] == NULL) return;
+
+  if (pm->processes[index]->buf != NULL) {
+    free(pm->processes[index]->buf);
+  }
+
+  if (pm->processes[index]->command != NULL) {
+    free(pm->processes[index]->command);
+  }
+
+  pm->processes[index] = NULL;
 }
 
 void pm_exit(ProcessManager* pm) {

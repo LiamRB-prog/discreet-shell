@@ -50,11 +50,11 @@ void interactive() {
 			continue;
 		}
 
-    bool skip = c_delegate_cmd(pm, argv);
+    	bool skip = c_delegate_cmd(pm, argv);
 
-    if (skip) continue;
+    	if (skip) continue;
 		
-    pm_add_proc(pm, argv);
+    	pm_add_proc(pm, argv);
 
 		for (size_t i = 0; i < argc; i++) {
 			free(argv[i]);

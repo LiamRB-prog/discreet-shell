@@ -12,6 +12,7 @@ typedef struct ProcessManager {
 
 ProcessManager* pm_init();
 void pm_add_proc(ProcessManager* pm, char** argv);
+void pm_remove_proc(ProcessManager* pm, int index);
 void pm_exit(ProcessManager* pm);
 
 char* read_pipe_buf(int fd);

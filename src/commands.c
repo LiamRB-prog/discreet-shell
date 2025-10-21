@@ -5,27 +5,31 @@
 #include <process_manager.h>
 #include <commands.h>
 
-bool c_delegate_cmd(ProcessManager* pm, char** argv) {
+int c_delegate_cmd(ProcessManager* pm, char** argv) {
   if (strcmp(argv[0], "shout") == 0) {
     c_shout(pm, argv[1]);
-    return true;
+    return 1;
+  }
+  if (strcmp(argv[0], "prm") == 0) {
+    c_remove(pm, argv[1]);
+    return 1;
   }
 
-  return false;
+  return 0;
 }
 
 void c_shout(ProcessManager* pm, char* argv) {
-  if (pm->processes[strtol(argv)] == NULL) return;
-  if (pm->processes[strtol(argv)]->buf == NULL) return;
+  if (pm->processes[atoi(argv)] == NULL) return;
+  if (pm->processes[atoi(argv)]->buf == NULL) return;
 
-  printf("%s\n", pm->processes[strtol(argv)]->buf);
+  printf("%s\n", pm->processes[atoi(argv)]->buf);
 }
 
 void c_remove(ProcessManager* pm, char* argv) {
-  if (pm->processes[strtol(argv)] == NULL) return;
-  if (pm->processes[strtol(argv)]->buf == NULL) return;
+  if (pm->processes[atoi(argv)] == NULL) return;
+  if (pm->processes[atoi(argv)]->buf == NULL) return;
 
-  // add functionality
+  pm_remove_proc(pm, atoi(argv));
 
-  printf("Removed Process")
+  printf("Removed Process");
 }

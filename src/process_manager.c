@@ -11,6 +11,8 @@
 ProcessManager* pm_init() {
   ProcessManager* pm = malloc(sizeof(ProcessManager));
 
+  if (pm == NULL) error_message(EXIT_FAILURE, "ERROR ALLOCATING PROCESS MANAGER");
+
   for(int i = 0; i < MAX_PROCESSES; i++) {
     pm->processes[i] = NULL;
   }
@@ -37,9 +39,7 @@ void pm_add_proc(ProcessManager* pm, char** argv) {
   Process* proc = create_proc(argv);
   pm->processes[index] = proc;
 
-  if (pipe(proc->fd) == -1) {
-    error_message(EXIT_FAILURE, "ERROR PIPING");
-  }
+  if (pipe(proc->fd) == -1) error_message(EXIT_FAILURE, "ERROR PIPING");
 
   pid_t pid = fork();
 
@@ -71,19 +71,13 @@ void pm_remove_proc(ProcessManager* pm, int index) {
     free(pm->processes[index]->command);
   }
 
-  free(pm->process[index]);
+  free(pm->processes[index]);
   pm->processes[index] = NULL;
 }
 
 void pm_exit(ProcessManager* pm) {
   for(int i = 0; i < MAX_PROCESSES; i++) {
-    if (pm->processes[i] != NULL) {
-      if (pm->processes[i]->buf != NULL) {
-        free(pm->processes[i]->buf);
-      }
-
-      free(pm->processes[i]);
-    }
+    pm_remove_proc(pm, i);
   }
 
   free(pm->processes);
@@ -93,9 +87,7 @@ void pm_exit(ProcessManager* pm) {
 char* read_pipe_buf(int fd) {
 	FILE* stream = fdopen(fd, "r");
 
-	if (!stream) {
-		error_message(EXIT_FAILURE, "ERROR OPENING STREAM");
-	}
+	if (!stream) error_message(EXIT_FAILURE, "ERROR OPENING STREAM");
 
 	char* buffer = NULL;
 	size_t size = 0;

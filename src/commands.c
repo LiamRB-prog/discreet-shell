@@ -1,9 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
 #include <string.h>
 #include <process.h>
 #include <process_manager.h>
 #include <commands.h>
+#include <error_message.h>
 
 int c_delegate_cmd(ProcessManager* pm, char** argv) {
   if (strcmp(argv[0], "shout") == 0) {
@@ -12,6 +15,11 @@ int c_delegate_cmd(ProcessManager* pm, char** argv) {
   }
   if (strcmp(argv[0], "prm") == 0) {
     c_remove(pm, argv[1]);
+    return 1;
+  }
+
+  if (strcmp(argv[0], "now") == 0) {
+    c_now(argv);
     return 1;
   }
 
@@ -32,4 +40,17 @@ void c_remove(ProcessManager* pm, char* argv) {
   pm_remove_proc(pm, atoi(argv));
 
   printf("Removed Process");
+}
+
+void c_now(char** argv) {
+  pid_t pid = fork();
+
+  if (pid == 0) {
+    execvp(argv[1], &argv[1]);
+  }
+  else {
+    int status;
+
+    waitpid(pid, &status, 0);
+  }
 }

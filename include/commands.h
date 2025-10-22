@@ -6,5 +6,6 @@
 int c_delegate_cmd(ProcessManager* pm, char** argv);
 void c_shout(ProcessManager* pm, char* argv);
 void c_remove(ProcessManager* pm, char* argv);
+void c_now(char** argv);
 
 #endif

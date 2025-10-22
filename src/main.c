@@ -18,6 +18,8 @@ char* read_pipe_buf(int);
 int main(int argc, char** argv) {
   pm = pm_init();
 
+  if (pm == NULL) return 1;
+
 	if (argc < 2) {
 		interactive();
 	}
@@ -60,14 +62,16 @@ void interactive() {
 			free(argv[i]);
 		}
 
-		free(argv);
 		free(input);
+		free(argv);
 	}
 }
 
 char** tokenize_input(char* line, size_t* count) {
 	size_t argc = 0;
 	char** argv = malloc(sizeof(char*) * ARG_NUM);
+
+	if (argv == NULL) error_message(EXIT_FAILURE, "ERROR ALLOCATING ARRAY FOR TOKENIZATION");
 
 	char* token = strtok(line, " \t");
 

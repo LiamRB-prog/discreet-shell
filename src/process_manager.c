@@ -96,5 +96,7 @@ char* read_pipe_buf(int fd) {
 
 	fclose(stream);
 
+  buffer[strlen(buffer)-1] = '\0';
+
 	return buffer;
 }
